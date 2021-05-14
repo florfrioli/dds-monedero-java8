@@ -18,19 +18,11 @@ public class Cuenta {
 
   public Cuenta() { }
 
-  public Cuenta(double montoInicial) {
-    saldo = montoInicial;
-  }
-
-  public void setMovimientos(List<Movimiento> movimientos) {
-    this.movimientos = movimientos;
-  }
-
   public void poner(double cuanto) {
     validarSiEsMontoNegativo(cuanto);
 
     if (getMovimientos().stream().filter(movimiento -> movimiento.isDeposito()).count() >= cantidadMaximaDeMovimientos) {
-      throw new MaximaCantidadDepositosException("Ya excedio los " + 3 + " depositos diarios");
+      throw new MaximaCantidadDepositosException("Ya excedio los " + cantidadMaximaDeMovimientos + " depositos diarios");
     }
 
     this.agregarMovimiento(LocalDate.now(), cuanto, true);
