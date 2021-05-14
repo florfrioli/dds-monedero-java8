@@ -13,6 +13,8 @@ public class Cuenta {
 
   private double saldo = 0;
   private List<Movimiento> movimientos = new ArrayList<>();
+  private int cantidadMaximaDeMovimientos = 3;
+  private double montoMaximoDeExtraccion = 1000;
 
   public Cuenta() { }
 
@@ -27,7 +29,7 @@ public class Cuenta {
   public void poner(double cuanto) {
     validarSiEsMontoNegativo(cuanto);
 
-    if (getMovimientos().stream().filter(movimiento -> movimiento.isDeposito()).count() >= 3) {
+    if (getMovimientos().stream().filter(movimiento -> movimiento.isDeposito()).count() >= cantidadMaximaDeMovimientos) {
       throw new MaximaCantidadDepositosException("Ya excedio los " + 3 + " depositos diarios");
     }
 
@@ -42,9 +44,9 @@ public class Cuenta {
     }
 
     double montoExtraidoHoy = getMontoExtraidoA(LocalDate.now());
-    double limite = 1000 - montoExtraidoHoy;
+    double limite = montoMaximoDeExtraccion - montoExtraidoHoy;
     if (cuanto > limite) {
-      throw new MaximoExtraccionDiarioException("No puede extraer mas de $ " + 1000
+      throw new MaximoExtraccionDiarioException("No puede extraer mas de $ " + montoMaximoDeExtraccion
           + " diarios, límite: " + limite);
     }
     this.agregarMovimiento(LocalDate.now(), cuanto, false);
