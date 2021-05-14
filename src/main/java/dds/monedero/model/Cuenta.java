@@ -11,9 +11,7 @@ import java.util.List;
 public class Cuenta {
 
   private double saldo = 0;
-  private List<Movimiento> movimientos = new ArrayList<>();
-  private int cantidadMaximaDeMovimientos = 3;
-  private double montoMaximoDeExtraccion = 1000;
+  private final List<Movimiento> movimientos = new ArrayList<>();
 
   public Cuenta() { }
 
@@ -35,13 +33,15 @@ public class Cuenta {
   }
 
   public void validarCantidadDeDepositosDiarios(){
-    if (getMovimientos().stream().filter(movimiento -> movimiento.isDeposito()).count() >= cantidadMaximaDeMovimientos) {
+    int cantidadMaximaDeMovimientos = 3;
+    if (getMovimientos().stream().filter(movimiento -> movimiento instanceof Deposito).count() >= cantidadMaximaDeMovimientos) {
       throw new MaximaCantidadDepositosException("Ya excedio los " + cantidadMaximaDeMovimientos + " depositos diarios");
     }
   }
 
   public void validarLimiteDeExtraccion(double cuanto){
     double montoExtraidoHoy = getMontoExtraidoA(LocalDate.now());
+    double montoMaximoDeExtraccion = 1000;
     double limite = montoMaximoDeExtraccion - montoExtraidoHoy;
     if (cuanto > limite) {
       throw new MaximoExtraccionDiarioException("No puede extraer mas de $ " + montoMaximoDeExtraccion
@@ -50,14 +50,14 @@ public class Cuenta {
   }
 
   public void agregarMovimiento(LocalDate fecha, double cuanto, boolean esDeposito) {
-    Movimiento movimiento = new Movimiento(fecha, cuanto, esDeposito);
+    Movimiento movimiento = (esDeposito) ? new Deposito(fecha, cuanto) : new Extraccion(fecha,cuanto);
     movimientos.add(movimiento);
     this.actualizarSaldo(movimiento.getMonto());
   }
 
   public double getMontoExtraidoA(LocalDate fecha) {
     return getMovimientos().stream()
-        .filter(movimiento -> !movimiento.isDeposito() && movimiento.getFecha().equals(fecha))
+        .filter(movimiento -> (movimiento instanceof Extraccion) && movimiento.getFecha().equals(fecha))
         .mapToDouble(Movimiento::getMonto)
         .sum();
   }
