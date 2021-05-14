@@ -20,33 +20,41 @@ public class Cuenta {
 
   public void poner(double cuanto) {
     validarSiEsMontoNegativo(cuanto);
-
-    if (getMovimientos().stream().filter(movimiento -> movimiento.isDeposito()).count() >= cantidadMaximaDeMovimientos) {
-      throw new MaximaCantidadDepositosException("Ya excedio los " + cantidadMaximaDeMovimientos + " depositos diarios");
-    }
-
-    this.agregarMovimiento(LocalDate.now(), cuanto, true);
+    validarCantidadDeDepositosDiarios();
+    agregarMovimiento(LocalDate.now(), cuanto, true);
   }
 
   public void sacar(double cuanto) {
     validarSiEsMontoNegativo(cuanto);
-
-    if (getSaldo() - cuanto < 0) {
-      throw new SaldoMenorException("No puede sacar mas de " + getSaldo() + " $");
-    }
-
-    double montoExtraidoHoy = getMontoExtraidoA(LocalDate.now());
-    double limite = montoMaximoDeExtraccion - montoExtraidoHoy;
-    if (cuanto > limite) {
-      throw new MaximoExtraccionDiarioException("No puede extraer mas de $ " + montoMaximoDeExtraccion
-          + " diarios, límite: " + limite);
-    }
+    validarMontoDeExtraccion(cuanto);
+    validarLimiteDeExtraccion(cuanto);
     this.agregarMovimiento(LocalDate.now(), cuanto, false);
   }
 
   public void validarSiEsMontoNegativo(double cuanto){
     if (cuanto <= 0) {
       throw new MontoNegativoException(cuanto + ": el monto a ingresar debe ser un valor positivo");
+    }
+  }
+
+  public void validarMontoDeExtraccion(double cuanto){
+    if (getSaldo() - cuanto < 0) {
+      throw new SaldoMenorException("No puede sacar mas de " + getSaldo() + " $");
+    }
+  }
+
+  public void validarCantidadDeDepositosDiarios(){
+    if (getMovimientos().stream().filter(movimiento -> movimiento.isDeposito()).count() >= cantidadMaximaDeMovimientos) {
+      throw new MaximaCantidadDepositosException("Ya excedio los " + cantidadMaximaDeMovimientos + " depositos diarios");
+    }
+  }
+
+  public void validarLimiteDeExtraccion(double cuanto){
+    double montoExtraidoHoy = getMontoExtraidoA(LocalDate.now());
+    double limite = montoMaximoDeExtraccion - montoExtraidoHoy;
+    if (cuanto > limite) {
+      throw new MaximoExtraccionDiarioException("No puede extraer mas de $ " + montoMaximoDeExtraccion
+          + " diarios, límite: " + limite);
     }
   }
 
