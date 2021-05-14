@@ -17,7 +17,7 @@ public class Movimiento {
   }
 
   public double getMonto() {
-    return monto;
+    return isDeposito() ? monto : - monto;
   }
 
   public LocalDate getFecha() {
@@ -44,11 +44,4 @@ public class Movimiento {
     return !esDeposito;
   }
 
-  public double calcularValor(Cuenta cuenta) {
-    if (esDeposito) {
-      return cuenta.getSaldo() + getMonto();
-    } else {
-      return cuenta.getSaldo() - getMonto();
-    }
-  }
 }
