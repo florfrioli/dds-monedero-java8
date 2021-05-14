@@ -2,7 +2,6 @@ package dds.monedero.model;
 
 import dds.monedero.exceptions.MaximaCantidadDepositosException;
 import dds.monedero.exceptions.MaximoExtraccionDiarioException;
-import dds.monedero.exceptions.MontoNegativoException;
 import dds.monedero.exceptions.SaldoMenorException;
 
 import java.time.LocalDate;
@@ -19,22 +18,14 @@ public class Cuenta {
   public Cuenta() { }
 
   public void poner(double cuanto) {
-    validarSiEsMontoNegativo(cuanto);
     validarCantidadDeDepositosDiarios();
     agregarMovimiento(LocalDate.now(), cuanto, true);
   }
 
   public void sacar(double cuanto) {
-    validarSiEsMontoNegativo(cuanto);
     validarMontoDeExtraccion(cuanto);
     validarLimiteDeExtraccion(cuanto);
     this.agregarMovimiento(LocalDate.now(), cuanto, false);
-  }
-
-  public void validarSiEsMontoNegativo(double cuanto){
-    if (cuanto <= 0) {
-      throw new MontoNegativoException(cuanto + ": el monto a ingresar debe ser un valor positivo");
-    }
   }
 
   public void validarMontoDeExtraccion(double cuanto){
